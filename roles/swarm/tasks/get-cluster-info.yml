@@ -1,0 +1,19 @@
+- name: initialize cluster if not initialized and gather information
+  become: true
+  run_once: true
+  block:
+    - name: starting swarm cluster
+      docker_swarm:
+        state: present
+    - name: get swarm cluster info
+      docker_swarm_info:
+        nodes: true
+      register: result_swarm_info
+
+- set_fact:
+    join_token_manager: "{{ result_swarm_info.swarm_facts.JoinTokens.Manager }}"
+    join_token_worker: "{{ result_swarm_info.swarm_facts.JoinTokens.Worker }}"
+    swarm_cluster_id: "{{ result_swarm_info.swarm_facts.ID }}"
+    swarm_remote_addresses: >-
+      {{ groups['docker_managers'] | map('extract', hostvars, ['ansible_default_ipv4', 'address'])
+      | map('regex_replace', '^(.*)$', '\1:2377') | list }}

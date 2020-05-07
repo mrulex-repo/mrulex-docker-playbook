@@ -1,0 +1,32 @@
+- hosts: docker_instances
+  tasks:
+    - include_role:
+        name: instance
+        tasks_from: before-install
+    - include_role:
+        name: instance
+        tasks_from: install-docker-debian
+      when: should_install_docker | bool and is_debian_based | bool
+    - include_role:
+        name: instance
+        tasks_from: install-docker-rhel
+      when: should_install_docker | bool and is_rhel_based | bool
+
+- hosts: docker_managers
+  tasks:
+    - include_role:
+        name: swarm
+        tasks_from: get-cluster-info
+    - include_role:
+        name: swarm
+        tasks_from: configure-node
+      vars:
+        join_token: "{{ join_token_manager }}"
+
+- hosts: docker_workers
+  tasks:
+    - include_role:
+        name: swarm
+        tasks_from: configure-node
+      vars:
+        join_token: "{{ join_token_worker }}"

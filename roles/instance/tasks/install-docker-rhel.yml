@@ -1,0 +1,47 @@
+- name: gather service facts
+  become: true
+  service_facts:
+
+- include_tasks: stop-daemon.yml
+  when: '"docker.service" in services'
+
+- name: remove old versions
+  become: true
+  yum:
+    name:
+      - docker
+      - docker-client
+      - docker-client-latest
+      - docker-common
+      - docker-latest
+      - docker-latest-logrotate
+      - docker-logrotate
+      - docker-engine
+    state: absent
+
+- name: install packages to allow yum to set up stable repository
+  become: true
+  yum:
+    name:
+      - yum-utils
+
+- name: setup stable repository
+  become: true
+  yum_repository:
+    name: Docker CE stable repository
+    baseurl:  "https://download.docker.com/linux/centos/docker-ce.repo"
+    state: present
+
+- name: "installing docker {{ docker_version }}"
+  become: true
+  yum:
+    name:
+      - "docker-ce-{{ docker_version }}"
+      - "docker-ce-cli-{{ docker_version }}"
+      - containerd.io
+    state: present
+    update_cache: true
+  register: docker_installation
+
+- include_tasks: restart-daemon.yml
+  when: 'docker_installation.changed == true'

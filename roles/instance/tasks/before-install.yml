@@ -1,0 +1,27 @@
+- name: get os distribution
+  set_fact:
+    is_debian_based: "{{ ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' }}"
+    is_rhel_base: "{{ ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' }}"
+
+- name: removing non needed python modules
+  become: true
+  pip:
+    name:
+      - docker-py
+    state: absent
+
+- name: installing needed python modules
+  become: true
+  pip:
+    name:
+      - docker
+    state: present
+
+- name: get info on docker host
+  become: true
+  docker_host_info:
+  ignore_errors: true
+  register: docker_info
+
+- set_fact:
+    should_install_docker: "{{ docker_info.failed == True or docker_info.host_info.ServerVersion != docker_version }}"

@@ -1,0 +1,7 @@
+- name: stop docker service
+  become: true
+  systemd:
+    state: stopped
+    daemon_reload: yes
+    name: docker
+    enabled: true
