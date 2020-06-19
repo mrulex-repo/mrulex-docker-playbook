@@ -11,9 +11,10 @@
         name: instance
         tasks_from: install-docker-rhel
       when: should_install_docker | bool and is_rhel_based | bool
-
-- hosts: docker_managers
-  tasks:
+    - include_role:
+        name: instance
+        tasks_from: install-docker-amazon
+      when: should_install_docker | bool and is_amazon_based | bool
     - include_role:
         name: swarm
         tasks_from: get-cluster-info
@@ -22,11 +23,10 @@
         tasks_from: configure-node
       vars:
         join_token: "{{ join_token_manager }}"
-
-- hosts: docker_workers
-  tasks:
+      when: "'docker_managers' in group_names"
     - include_role:
         name: swarm
         tasks_from: configure-node
       vars:
         join_token: "{{ join_token_worker }}"
+      when: "'docker_workers' in group_names"

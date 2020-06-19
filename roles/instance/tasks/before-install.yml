@@ -1,17 +1,19 @@
 - name: get os distribution
   set_fact:
     is_debian_based: "{{ ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' }}"
-    is_rhel_base: "{{ ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' }}"
+    is_rhel_based: "{{ ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' }}"
+    is_amazon_based: "{{ ansible_distribution == 'Amazon' }}"
+    is_python2: "{{ ansible_python_version.startswith('2.') }}"
 
 - name: removing non needed python modules
-  become: true
+  become: "{{ is_python2 }}"
   pip:
     name:
       - docker-py
     state: absent
 
 - name: installing needed python modules
-  become: true
+  become: "{{ is_python2 }}"
   pip:
     name:
       - docker

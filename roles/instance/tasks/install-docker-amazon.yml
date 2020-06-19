@@ -1,0 +1,32 @@
+- name: gather service facts
+  become: true
+  service_facts:
+
+- include_tasks: stop-daemon.yml
+  when: '"docker.service" in services'
+
+- name: remove old versions
+  become: true
+  yum:
+    name:
+      - docker
+      - docker-client
+      - docker-client-latest
+      - docker-common
+      - docker-latest
+      - docker-latest-logrotate
+      - docker-logrotate
+      - docker-engine
+    state: absent
+
+- name: "installing docker"
+  become: true
+  yum:
+    name:
+      - docker
+    state: present
+    update_cache: true
+  register: docker_installation
+
+- include_tasks: restart-daemon.yml
+  when: 'docker_installation.changed == true'

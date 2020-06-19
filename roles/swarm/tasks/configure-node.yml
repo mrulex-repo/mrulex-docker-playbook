@@ -3,19 +3,19 @@
   docker_host_info:
   register: result_docker_host_info
 
-- name: removing host from non valid cluster and adding to valid cluster
+- name: leave swarm cluster if not the same cluster_id
   become: true
+  docker_swarm:
+    state: absent
   when: >-
     'Swarm' in result_docker_host_info.host_info
     and 'Cluster' in result_docker_host_info.host_info.Swarm
     and result_docker_host_info.host_info.Swarm.Cluster.ID != swarm_cluster_id
-  block:
-    - name: leave swarm cluster if not the same cluster_id
-      docker_swarm:
-        state: absent
-    - name: add node
-      docker_swarm:
-        state: join
-        advertise_addr: "{{ docker_advertise_address | default(ansible_default_ipv4.address) }}"
-        join_token: "{{ join_token }}"
-        remote_addrs: "{{ swarm_remote_addresses }}"
+
+- name: add node to cluster
+  become: true
+  docker_swarm:
+    state: join
+    advertise_addr: "{{ docker_advertise_address | default(ansible_default_ipv4.address) }}"
+    join_token: "{{ join_token }}"
+    remote_addrs: "{{ swarm_remote_addresses }}"

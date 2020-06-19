@@ -1,14 +1,18 @@
-- name: initialize cluster if not initialized and gather information
+- name: on docker_managers
   become: true
-  run_once: true
+  when: "'docker_managers' in group_names"
   block:
-    - name: starting swarm cluster
-      docker_swarm:
-        state: present
-    - name: get swarm cluster info
-      docker_swarm_info:
-        nodes: true
-      register: result_swarm_info
+    - name: initialize cluster if not initialized and gather information
+      become: true
+      run_once: true
+      block:
+        - name: starting swarm cluster
+          docker_swarm:
+            state: present
+        - name: get swarm cluster info
+          docker_swarm_info:
+            nodes: true
+          register: result_swarm_info
 
 - set_fact:
     join_token_manager: "{{ result_swarm_info.swarm_facts.JoinTokens.Manager }}"
