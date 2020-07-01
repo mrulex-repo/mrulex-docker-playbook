@@ -6,26 +6,21 @@
   when: '"docker.service" in services'
 
 - name: remove old versions
-  become: true
-  yum:
-    name:
-      - docker
-      - docker-client
-      - docker-client-latest
-      - docker-common
-      - docker-latest
-      - docker-latest-logrotate
-      - docker-logrotate
-      - docker-engine
-    state: absent
+  become: yes
+  command: >
+    yum remove -y
+    docker
+    docker-client
+    docker-client-latest
+    docker-common
+    docker-latest
+    docker-latest-logrotate
+    docker-logrotate
+    docker-engine
 
 - name: "installing docker"
-  become: true
-  yum:
-    name:
-      - docker
-    state: present
-    update_cache: true
+  become: yes
+  command: amazon-linux-extras install -y docker
   register: docker_installation
 
 - include_tasks: restart-daemon.yml
