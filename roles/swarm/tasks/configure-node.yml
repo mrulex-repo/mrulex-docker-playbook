@@ -3,6 +3,10 @@
   docker_host_info:
   register: result_docker_host_info
 
+- name: set docker_hostname with collected name from host_info
+  set_fact:
+    docker_hostname: "{{ result_docker_host_info.host_info.Name }}"
+
 - name: leave swarm cluster if not the same cluster_id
   become: true
   docker_swarm:

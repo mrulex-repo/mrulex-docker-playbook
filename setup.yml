@@ -30,3 +30,7 @@
       vars:
         join_token: "{{ join_token_worker }}"
       when: "'docker_workers' in group_names"
+    - include_role:
+        name: swarm
+        tasks_from: label-nodes
+      when: "'docker_managers' in group_names"

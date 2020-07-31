@@ -1,0 +1,10 @@
+- name: applying labels to node
+  become: yes
+  run_once: yes
+  loop: "{{ groups['docker_instances'] }}"
+  docker_node:
+    hostname: |-
+      {{ hostvars[item].docker_hostname }}
+    labels: |-
+      {{ hostvars[item].docker_node_labels | default({}) }}
+    labels_state: replace
