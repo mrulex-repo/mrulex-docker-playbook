@@ -21,6 +21,7 @@ This playbook can be used to install Docker and also to setup Docker Swarm clust
 
 * **docker_version** for all hosts, version to install
 * **docker_advertise_address** per host, this is used to define the advertise address for the docker host into the Swarm cluster. If not defined it uses *ansible_default_ipv4.address* host variable.
+* **docker_node_labels** labels to be assigned to docker instances
 
 ## Usage:
 ```
